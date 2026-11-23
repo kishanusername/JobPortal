@@ -45,6 +45,30 @@ const JobDescription = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const resumeChangeHandler = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            setResumeFile(null);
+            return;
+        }
+        const allowed = file.type === "application/pdf"
+            || file.type === "application/msword"
+            || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            || file.type === "application/octet-stream"
+            || /\.(pdf|doc|docx)$/i.test(file.name);
+        if (!allowed) {
+            toast.error("Please upload a PDF or Word resume.");
+            event.target.value = "";
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Resume must be smaller than 5 MB.");
+            event.target.value = "";
+            return;
+        }
+        setResumeFile(file);
+    };
+
     const applyJobHandler = async () => {
         if (!user) {
             toast.error("Please login to apply for this job.");
@@ -65,7 +89,7 @@ const JobDescription = () => {
             const res = await axios.post(
                 `${APPLICATION_API_END_POINT}/apply/${jobId}`,
                 formData,
-                { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
+                { withCredentials: true, timeout: 30000, headers: { "Content-Type": "multipart/form-data" } }
             );
             
             if(res.data.success){
@@ -193,11 +217,31 @@ const JobDescription = () => {
                             <section className='rounded-3xl border border-purple-100 bg-white p-6 shadow-[0_18px_45px_rgba(106,56,194,0.12)]'>
                                 <h3 className='text-lg font-bold text-gray-900'>Application</h3>
                                 {!isApplied && user?.role === "student" && (
-                                    <label className='mt-4 flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-dashed border-purple-300 bg-purple-50 px-4 py-3 text-sm text-gray-700 transition hover:bg-purple-100'>
-                                        <span className='flex items-center gap-2'><Upload className='h-4 w-4 text-[#6A38C2]' />{resumeFile?.name || "Upload resume"}</span>
-                                        <span className='text-xs font-semibold text-[#6A38C2]'>PDF/DOC</span>
-                                        <input type='file' accept='.pdf,.doc,.docx' className='hidden' onChange={(event) => setResumeFile(event.target.files?.[0] || null)} />
-                                    </label>
+                                    user.profile?.resume ? (
+                                        <div className='mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3'>
+                                            <p className='flex items-center gap-2 text-sm font-semibold text-green-800'>
+                                                <CheckCircle2 className='h-4 w-4' /> Resume from your profile
+                                            </p>
+                                            <a
+                                                href={user.profile.resume}
+                                                target='_blank'
+                                                rel='noreferrer'
+                                                className='mt-1 block text-xs font-semibold text-[#6A38C2] underline'
+                                            >
+                                                View Resume
+                                            </a>
+                                            <label className='mt-3 cursor-pointer text-xs font-semibold text-gray-600 underline'>
+                                                Replace for this application
+                                                <input type='file' accept='.pdf,.doc,.docx' className='hidden' onChange={resumeChangeHandler} />
+                                            </label>
+                                        </div>
+                                    ) : (
+                                        <label className='mt-4 flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-dashed border-purple-300 bg-purple-50 px-4 py-3 text-sm text-gray-700 transition hover:bg-purple-100'>
+                                            <span className='flex items-center gap-2'><Upload className='h-4 w-4 text-[#6A38C2]' />{resumeFile?.name || "Upload resume"}</span>
+                                            <span className='text-xs font-semibold text-[#6A38C2]'>PDF/DOC</span>
+                                            <input type='file' accept='.pdf,.doc,.docx' className='hidden' onChange={resumeChangeHandler} />
+                                        </label>
+                                    )
                                 )}
 
                                 {isApplied && applicationStatus && (

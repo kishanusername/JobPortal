@@ -41,10 +41,40 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
 
     const fileChangeHandler = (e) => {
         const file = e.target.files?.[0];
-        setInput({ ...input, file })
+        if (!file) {
+            setInput({ ...input, file: null });
+            return;
+        }
+        const allowed = file.type === "application/pdf"
+            || file.type === "application/msword"
+            || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            || file.type === "application/octet-stream"
+            || /\.(pdf|doc|docx)$/i.test(file.name);
+        if (!allowed) {
+            toast.error("Please upload a PDF or Word document.");
+            e.target.value = "";
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Resume must be smaller than 5 MB.");
+            e.target.value = "";
+            return;
+        }
+        setInput({ ...input, file });
     }
     const profilePhotoChangeHandler = (e) => {
-        setInput({ ...input, profilePhoto: e.target.files?.[0] || null });
+        const file = e.target.files?.[0];
+        if (file && !file.type.startsWith("image/")) {
+            toast.error("Please choose an image file.");
+            e.target.value = "";
+            return;
+        }
+        if (file && file.size > 5 * 1024 * 1024) {
+            toast.error("Profile photo must be smaller than 5 MB.");
+            e.target.value = "";
+            return;
+        }
+        setInput({ ...input, profilePhoto: file || null });
     }
 
     const submitHandler = async (e) => {
@@ -67,11 +97,15 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
             formData.append("portfolio", input.portfolio);
         }
         if (input.profilePhoto) {
-            formData.append("file", input.profilePhoto);
+            formData.append("profilePhoto", input.profilePhoto);
+        }
+        if (input.file instanceof File) {
+            formData.append("resume", input.file);
         }
         try {
             setLoading(true);
             const res = await axios.post(`${USER_API_END_POINT}/profile/update`, formData, {
+                timeout: 30000,
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },
@@ -201,7 +235,7 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                                     </div>
                                     <div className='grid grid-cols-4 items-center gap-4'>
                                         <Label htmlFor="file" className="text-right">Resume</Label>
-                                        <Input id="file" name="file" type="file" accept="application/pdf" onChange={fileChangeHandler} className="col-span-3" />
+                                        <Input id="file" name="file" type="file" accept=".pdf,.doc,.docx" onChange={fileChangeHandler} className="col-span-3" />
                                     </div>
                                 </>
                             )}

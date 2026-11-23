@@ -23,6 +23,9 @@ const Navbar = () => {
         .join("") || "U";
 
     const logoutHandler = async () => {
+        const confirmed = window.confirm("Are you sure you want to logout?");
+        if (!confirmed) return;
+
         try {
             setLoggingOut(true);
             const res = await axios.get(`${USER_API_END_POINT}/logout`, { withCredentials: true });

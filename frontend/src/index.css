@@ -78,6 +78,14 @@
     button, input {
       font: inherit;
     }
+    ::selection {
+      background: rgba(106, 56, 194, 0.18);
+      color: #32166f;
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #c4b5fd #f8fafc;
+    }
   }
 
   @layer components {

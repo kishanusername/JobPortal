@@ -20,7 +20,8 @@ const Signup = () => {
         phoneNumber: "",
         password: "",
         role: "",
-        file: ""
+        profilePhoto: null,
+        resume: null
     });
     const {loading,user} = useSelector(store=>store.auth);
     const dispatch = useDispatch();
@@ -29,33 +30,82 @@ const Signup = () => {
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     }
-    const changeFileHandler = (e) => {
-        setInput({ ...input, file: e.target.files?.[0] });
+    const changeProfilePhotoHandler = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) {
+            setInput({ ...input, profilePhoto: null });
+            return;
+        }
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please choose an image file.");
+            e.target.value = "";
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Profile photo must be smaller than 5 MB.");
+            e.target.value = "";
+            return;
+        }
+        setInput({ ...input, profilePhoto: file });
+    }
+    const changeResumeHandler = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) {
+            setInput({ ...input, resume: null });
+            return;
+        }
+        const allowed = file.type === "application/pdf"
+            || file.type === "application/msword"
+            || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            || file.type === "application/octet-stream"
+            || /\.(pdf|doc|docx)$/i.test(file.name);
+        if (!allowed) {
+            toast.error("Please upload a PDF or Word document.");
+            e.target.value = "";
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Resume must be smaller than 5 MB.");
+            e.target.value = "";
+            return;
+        }
+        setInput({ ...input, resume: file });
     }
     const submitHandler = async (e) => {
         e.preventDefault();
+        if (!input.fullname || !input.email || !input.phoneNumber || !input.password || !input.role) {
+            toast.error("Please fill in all required signup fields.");
+            return;
+        }
         const formData = new FormData();    //formdata object
         formData.append("fullname", input.fullname);
         formData.append("email", input.email);
         formData.append("phoneNumber", input.phoneNumber);
         formData.append("password", input.password);
         formData.append("role", input.role);
-        if (input.file) {
-            formData.append("file", input.file);
+        if (input.profilePhoto) {
+            formData.append("profilePhoto", input.profilePhoto);
+        }
+        if (input.resume && input.role === "student") {
+            formData.append("resume", input.resume);
         }
 
         try {
             dispatch(setLoading(true));
             const res = await axios.post(`${USER_API_END_POINT}/register`, formData, {
-                headers: { 'Content-Type': "multipart/form-data" },
                 withCredentials: true,
+                timeout: 30000,
             });
             if (res.data.success) {
                 navigate("/login");
                 toast.success(res.data.message);
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || error.message || "Unable to register. Please try again.");
+            toast.error(
+                error.code === "ECONNABORTED"
+                    ? "Registration is taking too long. Please try again."
+                    : error.response?.data?.message || error.message || "Unable to register. Please try again."
+            );
         } finally{
             dispatch(setLoading(false));
         }
@@ -69,9 +119,12 @@ const Signup = () => {
     return (
         <div>
             <Navbar />
-            <div className='flex items-center justify-center max-w-7xl mx-auto'>
-                <form onSubmit={submitHandler} className='w-1/2 border border-gray-200 rounded-md p-6 my-10 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.12)]'>
-                    <h1 className='font-bold text-xl mb-5'>Sign Up</h1>
+            <div className='flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[radial-gradient(circle_at_top_right,_rgba(248,48,2,0.08),_transparent_32%),linear-gradient(135deg,#f8fafc,#f4efff)] px-4 py-10'>
+                <form onSubmit={submitHandler} className='w-full max-w-2xl rounded-3xl border border-white bg-white/95 p-7 shadow-[0_24px_70px_rgba(70,45,120,0.18)] backdrop-blur'>
+                    <div className='mb-6 text-center'>
+                        <p className='text-xs font-bold uppercase tracking-[0.2em] text-[#F83002]'>Start your journey</p>
+                        <h1 className='mt-2 text-3xl font-black text-slate-950'>Create an account</h1>
+                    </div>
                     <div className='my-2'>
                         <Label>Full Name</Label>
                         <Input
@@ -140,13 +193,27 @@ const Signup = () => {
                         <div className='flex items-center gap-2'>
                             <Label>Profile</Label>
                             <Input
+                                name="profilePhoto"
                                 accept="image/*"
                                 type="file"
-                                onChange={changeFileHandler}
+                                onChange={changeProfilePhotoHandler}
                                 className="cursor-pointer"
                             />
                         </div>
                     </div>
+                    {input.role === "student" && (
+                        <div className='my-3 flex items-center justify-between'>
+                            <Label htmlFor="signup-resume">Resume</Label>
+                            <Input
+                                id="signup-resume"
+                                name="resume"
+                                accept=".pdf,.doc,.docx"
+                                type="file"
+                                onChange={changeResumeHandler}
+                                className="max-w-sm cursor-pointer"
+                            />
+                        </div>
+                    )}
                     {
                         <Button type="submit" className="w-full my-4" disabled={loading}>
                             {loading ? <><Loader2 className='mr-2 h-4 w-4 animate-spin' /> Please wait</> : "Signup"}

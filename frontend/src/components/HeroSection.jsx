@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button } from './ui/button'
-import { ArrowRight, BriefcaseBusiness, Search, Sparkles } from 'lucide-react'
+import { ArrowRight, BriefcaseBusiness, Building2, Search, Sparkles, Users } from 'lucide-react'
 import { useDispatch } from 'react-redux';
 import { setSearchedQuery } from '@/redux/jobSlice';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +21,7 @@ const HeroSection = () => {
             <div className="hero-grid absolute inset-0 -z-10" />
             <div className="hero-orb absolute left-[8%] top-16 -z-10 h-40 w-40 rounded-full bg-purple-300/20 blur-3xl" />
             <div className="hero-orb absolute bottom-10 right-[8%] -z-10 h-48 w-48 rounded-full bg-orange-300/20 blur-3xl" />
-            <div className="mx-auto flex min-h-[520px] max-w-7xl flex-col items-center justify-center px-4 py-16 text-center">
+            <div className="mx-auto flex min-h-[580px] max-w-7xl flex-col items-center justify-center px-4 py-16 text-center">
                 <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white/80 px-4 py-2 text-sm font-semibold text-[#6A38C2] shadow-sm backdrop-blur">
                     <Sparkles className="h-4 w-4 text-[#F83002]" />
                     Find work that feels like you
@@ -58,6 +58,11 @@ const HeroSection = () => {
                 <div className="mt-5 flex items-center gap-2 text-sm text-slate-500">
                     <BriefcaseBusiness className="h-4 w-4 text-[#6A38C2]" />
                     New opportunities added every day
+                </div>
+                <div className="mt-10 grid w-full max-w-2xl grid-cols-3 divide-x divide-purple-100 rounded-2xl border border-white/70 bg-white/70 py-4 shadow-sm backdrop-blur">
+                    <div><p className="text-xl font-black text-slate-950 md:text-2xl">10K+</p><p className="mt-1 text-xs text-slate-500">Open Jobs</p></div>
+                    <div><p className="text-xl font-black text-slate-950 md:text-2xl">5K+</p><p className="mt-1 text-xs text-slate-500">Companies</p></div>
+                    <div><p className="text-xl font-black text-slate-950 md:text-2xl">25K+</p><p className="mt-1 text-xs text-slate-500">Candidates</p></div>
                 </div>
             </div>
         </section>

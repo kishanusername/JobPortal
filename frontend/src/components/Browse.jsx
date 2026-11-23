@@ -20,9 +20,15 @@ const Browse = () => {
     return (
         <div>
             <Navbar />
-            <div className='max-w-7xl mx-auto my-10'>
-                <h1 className='font-bold text-xl my-10'>Search Results ({safeAllJobs.length})</h1>
-                <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+            <div className='min-h-[calc(100vh-4rem)] bg-slate-50 pb-16'>
+                <div className='border-b border-purple-100 bg-gradient-to-r from-[#24124f] to-[#6A38C2] py-12 text-white'>
+                    <div className='mx-auto max-w-7xl px-4'>
+                        <p className='text-sm font-bold uppercase tracking-[0.2em] text-purple-200'>Discover opportunities</p>
+                        <h1 className='mt-2 text-3xl font-black md:text-4xl'>Search Results <span className='text-purple-200'>({safeAllJobs.length})</span></h1>
+                    </div>
+                </div>
+                <div className='mx-auto -mt-6 max-w-7xl px-4'>
+                <div className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
                     {
                         safeAllJobs.map((job) => {
                             return (
@@ -31,7 +37,7 @@ const Browse = () => {
                         })
                     }
                 </div>
-
+                </div>
             </div>
         </div>
     )

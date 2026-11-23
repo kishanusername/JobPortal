@@ -32,6 +32,29 @@ app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
 
+app.use((error, _req, res, _next) => {
+    if (error?.code === "LIMIT_FILE_SIZE") {
+        return res.status(413).json({
+            message: "Profile photo must be smaller than 5 MB.",
+            success: false
+        });
+    }
+    if (error?.code === "LIMIT_UNEXPECTED_FILE") {
+        return res.status(400).json({
+            message: error.field === "resume"
+                ? "Please upload a PDF or Word resume."
+                : error.field === "profilePhoto"
+                    ? "Please upload a valid profile image."
+                    : "Please upload a supported image, PDF, or Word document.",
+            success: false
+        });
+    }
+    console.error("Request failed:", error);
+    return res.status(500).json({
+        message: "An unexpected server error occurred.",
+        success: false
+    });
+});
 
 
 const startServer = async () => {

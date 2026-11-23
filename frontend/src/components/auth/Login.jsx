@@ -56,9 +56,12 @@ const Login = () => {
     return (
         <div>
             <Navbar />
-            <div className='flex items-center justify-center max-w-7xl mx-auto'>
-                <form onSubmit={submitHandler} className='w-1/2 border border-gray-200 rounded-md p-6 my-10 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.12)]'>
-                    <h1 className='font-bold text-xl mb-5'>Login</h1>
+            <div className='flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(106,56,194,0.12),_transparent_35%),linear-gradient(135deg,#f8fafc,#f4efff)] px-4 py-10'>
+                <form onSubmit={submitHandler} className='w-full max-w-md rounded-3xl border border-white bg-white/95 p-7 shadow-[0_24px_70px_rgba(70,45,120,0.18)] backdrop-blur'>
+                    <div className='mb-6 text-center'>
+                        <p className='text-xs font-bold uppercase tracking-[0.2em] text-[#F83002]'>Welcome back</p>
+                        <h1 className='mt-2 text-3xl font-black text-slate-950'>Login to your account</h1>
+                    </div>
                     <div className='my-2'>
                         <Label>Email</Label>
                         <Input

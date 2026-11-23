@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer className="border-t border-purple-100 bg-slate-950 py-10 text-white">
+    <footer className="border-t border-purple-900/30 bg-[linear-gradient(135deg,#17102b,#25124f)] py-12 text-white">
       <div className="container mx-auto px-4">
         <div className="mb-8 text-center">
           <p className="mx-auto max-w-3xl text-lg font-semibold leading-relaxed text-slate-100">

@@ -23,17 +23,39 @@ export const register = async (req, res) => {
         }
 
         let profilePhoto = "";
-        if (req.file) {
-            const fileUri = getDataUri(req.file);
+        let resume = "";
+        let resumeOriginalName = "";
+        const profilePhotoFile = req.files?.profilePhoto?.[0];
+        const resumeFile = req.files?.resume?.[0];
+        if (profilePhotoFile) {
+            const fileUri = getDataUri(profilePhotoFile);
             if (process.env.CLOUD_NAME && process.env.API_KEY && process.env.API_SECRET) {
-                const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
-                    resource_type: "image",
-                    folder: "job-portal/profile-photos"
-                });
-                profilePhoto = cloudResponse.secure_url;
+                try {
+                    const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+                        resource_type: "image",
+                        folder: "job-portal/profile-photos"
+                    });
+                    profilePhoto = cloudResponse.secure_url;
+                } catch (uploadError) {
+                    console.error("Cloudinary profile-photo upload failed:", uploadError.message);
+                    profilePhoto = fileUri.content;
+                }
             } else {
                 profilePhoto = fileUri.content;
             }
+        }
+        if (resumeFile && role === "student") {
+            const fileUri = getDataUri(resumeFile);
+            if (process.env.CLOUD_NAME && process.env.API_KEY && process.env.API_SECRET) {
+                const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+                    resource_type: "raw",
+                    folder: "job-portal/resumes"
+                });
+                resume = cloudResponse.secure_url;
+            } else {
+                resume = fileUri.content;
+            }
+            resumeOriginalName = resumeFile.originalname;
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -46,6 +68,8 @@ export const register = async (req, res) => {
             role,
             profile:{
                 profilePhoto,
+                resume,
+                resumeOriginalName,
             }
         });
 
@@ -122,12 +146,45 @@ export const login = async (req, res) => {
 }
 export const logout = async (req, res) => {
     try {
-        return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+        return res.status(200).cookie("token", "", {
+            maxAge: 0,
+            httpOnly: true,
+            sameSite: "lax"
+        }).json({
             message: "Logged out successfully.",
             success: true
         })
     } catch (error) {
         console.log(error);
+    }
+}
+export const getCurrentUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.id);
+        if (!user) {
+            return res.status(401).json({
+                message: "User not found.",
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            user: {
+                _id: user._id,
+                fullname: user.fullname,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                role: user.role,
+                profile: user.profile
+            }
+        });
+    } catch (error) {
+        console.error("Failed to get current user:", error);
+        return res.status(500).json({
+            message: "Unable to verify the current session.",
+            success: false
+        });
     }
 }
 export const updateProfile = async (req, res) => {
@@ -136,22 +193,30 @@ export const updateProfile = async (req, res) => {
             fullname, email, phoneNumber, bio, skills, percentage, cgpa,
             course, college, graduationYear, experience, location, linkedin, portfolio
         } = req.body;
+        const profilePhotoFile = req.files?.profilePhoto?.[0];
+        const resumeFile = req.files?.resume?.[0];
         const file = req.file;
-        let cloudResponse = null;
-        if (file) {
-            const fileUri = getDataUri(file);
+        let profilePhotoResponse = null;
+        let resumeResponse = null;
+        const uploadFile = async (upload, folder, resourceType) => {
+            const fileUri = getDataUri(upload);
             if (process.env.CLOUD_NAME && process.env.API_KEY && process.env.API_SECRET) {
-                cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
-                    resource_type: file.mimetype?.startsWith("image/")
-                        ? "image"
-                        : "raw",
-                    folder: file.mimetype?.startsWith("image/")
-                        ? "job-portal/profile-photos"
-                        : "job-portal/resumes"
+                return await cloudinary.uploader.upload(fileUri.content, {
+                    resource_type: resourceType,
+                    folder
                 });
-            } else {
-                cloudResponse = { secure_url: fileUri.content };
             }
+            return { secure_url: fileUri.content };
+        };
+        if (profilePhotoFile) {
+            profilePhotoResponse = await uploadFile(profilePhotoFile, "job-portal/profile-photos", "image");
+        } else if (file?.mimetype?.startsWith("image/")) {
+            profilePhotoResponse = await uploadFile(file, "job-portal/profile-photos", "image");
+        }
+        if (resumeFile) {
+            resumeResponse = await uploadFile(resumeFile, "job-portal/resumes", "raw");
+        } else if (file && !file.mimetype?.startsWith("image/")) {
+            resumeResponse = await uploadFile(file, "job-portal/resumes", "raw");
         }
 
 
@@ -188,13 +253,12 @@ export const updateProfile = async (req, res) => {
         if (linkedin !== undefined) user.profile.linkedin = linkedin;
       
         // Resume and profile photo are separate profile fields.
-        if(cloudResponse && user.role === "student"){
-            if (file.mimetype?.startsWith("image/")) {
-                user.profile.profilePhoto = cloudResponse.secure_url;
-            } else {
-                user.profile.resume = cloudResponse.secure_url;
-                user.profile.resumeOriginalName = file.originalname;
-            }
+        if (profilePhotoResponse) {
+            user.profile.profilePhoto = profilePhotoResponse.secure_url;
+        }
+        if (resumeResponse && user.role === "student") {
+            user.profile.resume = resumeResponse.secure_url;
+            user.profile.resumeOriginalName = (resumeFile || file).originalname;
         }
 
 

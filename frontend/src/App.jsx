@@ -14,6 +14,11 @@ import PostJob from './components/admin/PostJob'
 import Applicants from './components/admin/Applicants'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 import RecruiterProfile from './components/admin/RecruiterProfile'
+import { useEffect } from 'react'
+import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import { setUser } from './redux/authSlice'
+import { USER_API_END_POINT } from './utils/constant'
 
 
 const appRouter = createBrowserRouter([
@@ -81,6 +86,26 @@ const appRouter = createBrowserRouter([
 
 ])
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const verifySession = async () => {
+      try {
+        const res = await axios.get(`${USER_API_END_POINT}/me`, {
+          withCredentials: true
+        });
+        if (res.data.success) {
+          dispatch(setUser(res.data.user));
+        }
+      } catch (error) {
+        if (error.response?.status === 401) {
+          dispatch(setUser(null));
+        }
+      }
+    };
+
+    verifySession();
+  }, [dispatch]);
 
   return (
     <div>

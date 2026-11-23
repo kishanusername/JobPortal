@@ -52,7 +52,7 @@ const Job = ({job}) => {
     if (!job) return null;
     
     return (
-        <div className='group p-5 rounded-xl shadow-md bg-white border border-gray-100 transition-all duration-300 ease-out hover:-translate-y-2 hover:border-purple-200 hover:shadow-[0_18px_40px_rgba(106,56,194,0.16)]'>
+        <div className='group min-h-[260px] p-5 rounded-2xl shadow-[0_10px_35px_rgba(15,23,42,0.06)] bg-white border border-slate-100 transition-all duration-300 ease-out hover:-translate-y-2 hover:border-purple-200 hover:shadow-[0_22px_45px_rgba(106,56,194,0.16)]'>
             <div className='flex items-center justify-between'>
                 <p className='text-sm text-gray-500'>{daysAgoFunction(job?.createdAt) === 0 ? "Today" : `${daysAgoFunction(job?.createdAt)} days ago`}</p>
                 <Button
@@ -66,10 +66,10 @@ const Job = ({job}) => {
                 </Button>
             </div>
 
-            <div className='flex items-center gap-2 my-2'>
-                <Button className="p-6" variant="outline" size="icon">
-                    <Avatar>
-                        <AvatarImage src={job?.company?.logo} />
+            <div className='flex items-center gap-3 my-4'>
+                <Button className="h-14 w-14 rounded-2xl p-2" variant="outline" size="icon">
+                    <Avatar className="h-10 w-10">
+                        <AvatarImage src={job?.company?.logo} className="object-contain" />
                     </Avatar>
                 </Button>
                 <div>
