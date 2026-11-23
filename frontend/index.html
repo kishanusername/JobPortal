@@ -4,7 +4,14 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>JobPortal</title>
+    <script>
+      (function () {
+        var mode = localStorage.getItem("jobportal-theme");
+        if (mode !== "dark" && mode !== "reading") mode = "light";
+        document.documentElement.setAttribute("data-theme", mode);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

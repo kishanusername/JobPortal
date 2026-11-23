@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
-import { LogOut, User2 } from 'lucide-react'
+import { BookOpen, LogOut, Moon, Sun, User2 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
@@ -15,6 +15,21 @@ const Navbar = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [loggingOut, setLoggingOut] = useState(false);
+    const [theme, setTheme] = useState(() => {
+        const savedTheme = localStorage.getItem("jobportal-theme");
+        return savedTheme === "dark" || savedTheme === "reading" ? savedTheme : "light";
+    });
+
+    useEffect(() => {
+        document.documentElement.setAttribute("data-theme", theme);
+        localStorage.setItem("jobportal-theme", theme);
+    }, [theme]);
+
+    const themeOptions = [
+        { value: "light", label: "Bright mode", icon: Sun },
+        { value: "dark", label: "Dark mode", icon: Moon },
+        { value: "reading", label: "Reading mode", icon: BookOpen }
+    ];
     const profileInitials = user?.fullname
         ?.split(" ")
         .filter(Boolean)
@@ -62,7 +77,7 @@ const Navbar = () => {
     };
 
     return (
-        <nav className='fixed inset-x-0 top-0 z-50 bg-white/95 shadow-[0_4px_18px_rgba(15,23,42,0.10)] backdrop-blur-md'>
+        <nav className='theme-nav fixed inset-x-0 top-0 z-50 bg-white/95 shadow-[0_4px_18px_rgba(15,23,42,0.10)] backdrop-blur-md'>
             <div className='flex items-center justify-between mx-auto max-w-7xl h-16 px-4'>
                 <Link
                     to="/"
@@ -75,6 +90,25 @@ const Navbar = () => {
                 </Link>
                 <div className='flex items-center gap-5 md:gap-10'>
                     <ul className='hidden md:flex font-medium items-center gap-6'>
+                        <div className='theme-switcher flex items-center rounded-full border border-slate-200 bg-slate-50 p-1' role="group" aria-label="Display mode">
+                            {themeOptions.map(({ value, label, icon: Icon }) => (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    title={label}
+                                    aria-label={label}
+                                    aria-pressed={theme === value}
+                                    onClick={() => setTheme(value)}
+                                    className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
+                                        theme === value
+                                            ? "bg-[#6A38C2] text-white shadow-md"
+                                            : "text-slate-500 hover:bg-white hover:text-[#6A38C2]"
+                                    }`}
+                                >
+                                    <Icon className="h-4 w-4" />
+                                </button>
+                            ))}
+                        </div>
                         {
                             user && user.role === 'recruiter' ? (
                                 <>
