@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { ArrowUpRight, Bot, LoaderCircle, MessageCircle, Send, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Bot, LoaderCircle, MessageCircle, RotateCcw, Send, Sparkles, X } from "lucide-react";
 import { AI_API_END_POINT } from "../../utils/constant";
 
 const getMessageBlocks = (content) => {
@@ -110,6 +110,13 @@ const AIChat = () => {
         handleSend(message);
     };
 
+    const resetConversation = () => {
+        if (loading) return;
+        setMessages([]);
+        setMessage("");
+        setError("");
+    };
+
     return (
         <div className="fixed bottom-4 right-4 z-[70] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
             {isOpen && (
@@ -135,14 +142,26 @@ const AIChat = () => {
                                     </h2>
                                 </div>
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => setIsOpen(false)}
-                                aria-label="Close chat"
-                                className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-                            >
-                                <X size={19} aria-hidden="true" />
-                            </button>
+                            <div className="flex shrink-0 items-center gap-1">
+                                <button
+                                    type="button"
+                                    onClick={resetConversation}
+                                    disabled={loading || messages.length === 0}
+                                    aria-label="Start a new conversation"
+                                    title="Start a new conversation"
+                                    className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    <RotateCcw size={17} aria-hidden="true" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsOpen(false)}
+                                    aria-label="Close chat"
+                                    className="rounded-full p-2 text-white/80 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                                >
+                                    <X size={19} aria-hidden="true" />
+                                </button>
+                            </div>
                         </div>
                         <div className="relative mt-4 flex items-center justify-between gap-3">
                             <p className="text-xs text-white/75">
