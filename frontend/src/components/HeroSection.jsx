@@ -59,11 +59,6 @@ const HeroSection = () => {
                     <BriefcaseBusiness className="h-4 w-4 text-[#6A38C2]" />
                     New opportunities added every day
                 </div>
-                <div className="mt-10 grid w-full max-w-2xl grid-cols-3 divide-x divide-purple-100 rounded-2xl border border-white/70 bg-white/70 py-4 shadow-sm backdrop-blur">
-                    <div><p className="text-xl font-black text-slate-950 md:text-2xl">10K+</p><p className="mt-1 text-xs text-slate-500">Open Jobs</p></div>
-                    <div><p className="text-xl font-black text-slate-950 md:text-2xl">5K+</p><p className="mt-1 text-xs text-slate-500">Companies</p></div>
-                    <div><p className="text-xl font-black text-slate-950 md:text-2xl">25K+</p><p className="mt-1 text-xs text-slate-500">Candidates</p></div>
-                </div>
             </div>
         </section>
     )
