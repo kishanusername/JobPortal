@@ -3,6 +3,10 @@
 Created By Kishan Kumar Sah 
 Please give credit is reused. 
 
+## AI Career Assistant
+
+The chat widget supports OpenAI and Groq. Add the key for each provider you want to use to `backend/.env` using `backend/.env.example` as a reference, then restart the backend. Select the provider in the chat widget. Answers are grounded only in public job and company listings stored on this site; the assistant does not read private profiles or applications and should say when listings do not contain the answer.
+
 
 
 

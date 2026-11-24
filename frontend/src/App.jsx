@@ -19,6 +19,7 @@ import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import { setUser } from './redux/authSlice'
 import { USER_API_END_POINT } from './utils/constant'
+import AIChat from './components/AIChat/AIChat'
 
 
 const appRouter = createBrowserRouter([
@@ -108,7 +109,9 @@ function App() {
   }, [dispatch]);
 
   return (
+
     <div>
+       <AIChat />
       <RouterProvider router={appRouter} />
     </div>
   )
