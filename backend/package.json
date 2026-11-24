@@ -29,5 +29,10 @@
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6"
+  },
+  "overrides": {
+    "datauri": {
+      "image-size": "2.0.3"
+    }
   }
 }
